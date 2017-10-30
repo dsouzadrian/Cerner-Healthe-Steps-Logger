@@ -72,10 +72,9 @@ namespace Cerner_Healthe_Steps_Logger
             chDrService.HideCommandPromptWindow = true;
             //checkUserCreds();
             driver = new ChromeDriver(chDrService, options);
+            
+            //hideChromeWindow();
 
-            
-            hideChromeWindow();
-            
         }
 
         private void hideChromeWindow()

@@ -33,8 +33,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Selenium.WebDriverBackedSelenium">
-      <HintPath>Sellennium Files\net40\Selenium.WebDriverBackedSelenium.dll</HintPath>
+    <Reference Include="Selenium.WebDriverBackedSelenium, Version=2.48.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Sellennium Files\net35\Selenium.WebDriverBackedSelenium.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,14 +47,17 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="ThoughtWorks.Selenium.Core">
-      <HintPath>Sellennium Files\net40\ThoughtWorks.Selenium.Core.dll</HintPath>
+    <Reference Include="ThoughtWorks.Selenium.Core, Version=2.48.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Sellennium Files\net35\ThoughtWorks.Selenium.Core.dll</HintPath>
     </Reference>
-    <Reference Include="WebDriver">
-      <HintPath>Sellennium Files\net40\WebDriver.dll</HintPath>
+    <Reference Include="WebDriver, Version=2.48.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Sellennium Files\net35\WebDriver.dll</HintPath>
     </Reference>
-    <Reference Include="WebDriver.Support">
-      <HintPath>Sellennium Files\net40\WebDriver.Support.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.48.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Sellennium Files\net35\WebDriver.Support.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
