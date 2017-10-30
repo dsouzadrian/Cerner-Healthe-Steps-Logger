@@ -41,7 +41,7 @@ namespace Cerner_Healthe_Steps_Logger
             loginForm.FindElement(By.Id("login_password")).SendKeys(passTextBox.Text);
             loginForm.FindElement(By.TagName("button")).Submit() ;
 
-            IWebElement loginError = driver.FindElement(By.ClassName("topia-UserName"), 2);
+            IWebElement loginError = driver.FindElement(By.Id("terra-consumer-nav"), 2);
             
             if(loginError == null)
             {

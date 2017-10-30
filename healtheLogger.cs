@@ -64,6 +64,7 @@ namespace Cerner_Healthe_Steps_Logger
             options.AddUserProfilePreference("intl.accept_languages", "nl");
             options.AddUserProfilePreference("download.prompt_for_download", "false");
             options.AddUserProfilePreference("safebrowsing.enabled", "true");
+            options.AddArguments("--disable-extensions");
             //options.AddArgument("--no-startup-window");
             options.AddArguments("test-type");
 
