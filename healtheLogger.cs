@@ -73,7 +73,7 @@ namespace Cerner_Healthe_Steps_Logger
             //checkUserCreds();
             driver = new ChromeDriver(chDrService, options);
             
-            //hideChromeWindow();
+            hideChromeWindow();
 
         }
 
@@ -308,41 +308,150 @@ namespace Cerner_Healthe_Steps_Logger
                         string[] stepCountSplit = apiSteps[i].StepsCount.Split('|');
                         if (stepCountSplit.Count() > 1)
                         {
-                            stepsCount = Convert.ToInt32(stepCountSplit[0]) + Convert.ToInt32(stepCountSplit[1]);
+                            int hlwrSteps = Convert.ToInt32(stepCountSplit[0]);
+                            int apiSteps = Convert.ToInt32(stepCountSplit[1]);
+
+                            if(hlwrSteps < 5000)
+                            {
+                                if((hlwrSteps + apiSteps) >5000 && (hlwrSteps + apiSteps) < 10000)
+                                {
+                                    totalPointsAvailable++;
+                                    row["Points"] = "1";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 10000 && (hlwrSteps + apiSteps) < 15000)
+                                {
+                                    totalPointsAvailable += 2;
+                                    row["Points"] = "2";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 15000 && (hlwrSteps + apiSteps) < 20000)
+                                {
+                                    totalPointsAvailable += 3;
+                                    row["Points"] = "3";
+                                }
+                                else if((hlwrSteps + apiSteps) > 20000)
+                                {
+                                    totalPointsAvailable += 4;
+                                    row["Points"] = "4";
+                                }
+                                else
+                                {
+                                    row["Points"] = "0";
+                                }
+
+
+                            }
+                            else if(hlwrSteps > 5000 && hlwrSteps < 10000)
+                            {
+                                if ((hlwrSteps + apiSteps) > 5000 && (hlwrSteps + apiSteps) < 10000)
+                                {
+                                    row["Points"] = "0";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 10000 && (hlwrSteps + apiSteps) < 15000)
+                                {
+                                    totalPointsAvailable += 1;
+                                    row["Points"] = "1";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 15000 && (hlwrSteps + apiSteps) < 20000)
+                                {
+                                    totalPointsAvailable += 2;
+                                    row["Points"] = "2";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 20000)
+                                {
+                                    totalPointsAvailable += 3;
+                                    row["Points"] = "3";
+                                }
+                                else
+                                {
+                                    row["Points"] = "0";
+                                }
+                            }
+                            else if (hlwrSteps > 10000 && hlwrSteps < 15000)
+                            {
+                                if ((hlwrSteps + apiSteps) > 10000 && (hlwrSteps + apiSteps) < 15000)
+                                {
+                                    row["Points"] = "0";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 15000 && (hlwrSteps + apiSteps) < 20000)
+                                {
+                                    totalPointsAvailable += 1;
+                                    row["Points"] = "1";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 20000)
+                                {
+                                    totalPointsAvailable += 2;
+                                    row["Points"] = "2";
+                                }
+                                else
+                                {
+                                    row["Points"] = "0";
+                                }
+                            }
+                            else if (hlwrSteps > 15000 && hlwrSteps < 20000)
+                            {
+                                if ((hlwrSteps + apiSteps) > 15000 && (hlwrSteps + apiSteps) < 20000)
+                                {
+                                    totalPointsAvailable += 0;
+                                    row["Points"] = "0";
+                                }
+                                else if ((hlwrSteps + apiSteps) > 20000)
+                                {
+                                    totalPointsAvailable += 1;
+                                    row["Points"] = "1";
+                                }
+                                else
+                                {
+                                    row["Points"] = "0";
+                                }
+                            }
+                            else if (hlwrSteps > 20000)
+                            {
+                                if ((hlwrSteps + apiSteps) > 20000)
+                                {
+                                    totalPointsAvailable += 0;
+                                    row["Points"] = "0";
+                                }
+                                else
+                                {
+                                    row["Points"] = "0";
+                                }
+                            }
+
                         }
                         else
                         {
                             stepsCount = Convert.ToInt32(stepCountSplit[0]);
+                            if (stepsCount > 5000 && stepsCount < 10000)
+                            {
+                                totalPointsAvailable++;
+                                row["Points"] = "1";
+                            }
+                            else if (stepsCount > 10000 && stepsCount < 15000)
+                            {
+                                totalPointsAvailable += 2;
+                                row["Points"] = "2";
+                            }
+                            else if (stepsCount > 15000 && stepsCount < 20000)
+                            {
+                                totalPointsAvailable += 3;
+                                row["Points"] = "3";
+                            }
+                            else if (stepsCount > 20000)
+                            {
+                                totalPointsAvailable += 4;
+                                row["Points"] = "4";
+                            }
+                            else
+                            {
+                                row["Points"] = "0";
+                            }
                         }
                     }
                     catch
                     {
                         stepsCount = 0;
                     }
-                    if(stepsCount > 5000 && stepsCount < 10000)
-                    {
-                        totalPointsAvailable++;
-                        row["Points"] = "1";
-                    }
-                    else if (stepsCount > 10000 && stepsCount < 15000)
-                    {
-                        totalPointsAvailable += 2;
-                        row["Points"] = "2";
-                    }
-                    else if (stepsCount > 15000 && stepsCount < 20000)
-                    {
-                        totalPointsAvailable += 3;
-                        row["Points"] = "3";
-                    }
-                    else if (stepsCount > 20000)
-                    {
-                        totalPointsAvailable += 4;
-                        row["Points"] = "4";
-                    }
-                    else
-                    {
-                        row["Points"] = "0";
-                    }
+                   
                     unMatchedSteps.Rows.Add(row);
                 }
             }
@@ -563,7 +672,29 @@ namespace Cerner_Healthe_Steps_Logger
                 string[] stepCountSplit = apiSteps[i].StepsCount.Split('|');
                 if (stepCountSplit.Count() > 1)
                 {
-                    stepsCount = Convert.ToInt32(stepCountSplit[1]);
+                    int apiData = Convert.ToInt32(stepCountSplit[1]);
+                    int hlwrData = Convert.ToInt32(stepCountSplit[0]);
+
+                    if(hlwrData < 5000 && (hlwrData + apiData) > 5000)
+                    {
+                        stepsCount = apiData;
+                    }
+                    else if((hlwrData > 5000 && hlwrData < 10000) && (hlwrData + apiData) > 10000)
+                    {
+                        stepsCount = apiData;
+                    }
+                    else if ((hlwrData > 10000 && hlwrData < 15000) && (hlwrData + apiData) > 15000)
+                    {
+                        stepsCount = apiData;
+                    }
+                    else if ((hlwrData > 15000 && hlwrData < 20000) && (hlwrData + apiData) > 20000)
+                    {
+                        stepsCount = apiData;
+                    }
+                    else
+                    {
+                        stepsCount = 0;
+                    }
                 }
                 else
                 {
