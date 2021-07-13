@@ -32,7 +32,7 @@ namespace Cerner_Healthe_Steps_Logger
         }
         private void loginBt_Click(object sender, EventArgs e)
         {
-            failLab.Visible = false;
+            //failLab.Visible = false;
             loginLab.Visible = true;
             Application.DoEvents();
             driver.Navigate().GoToUrl(cernerHealthUrl);
@@ -41,7 +41,20 @@ namespace Cerner_Healthe_Steps_Logger
             loginForm.FindElement(By.Id("login_password")).SendKeys(passTextBox.Text);
             loginForm.FindElement(By.TagName("button")).Submit() ;
 
-            IWebElement loginError = driver.FindElement(By.ClassName("_2yjSR"), 2);
+
+            //After signing in you are taken to a splash screen where the user is required to click on the log in button.
+            IReadOnlyCollection<IWebElement> anchorButtons = driver.FindElements(By.ClassName("_1dkzNyxPhrIDnqyLjPrOfJ"));
+
+            foreach(IWebElement anchor in anchorButtons)
+            {
+                if(anchor.FindElement(By.TagName("span")).Text.Equals("Log in"))
+                {
+                    anchor.Click();
+                    break;
+                }
+            }
+
+            IWebElement loginError = driver.FindElement(By.ClassName("PzCiry46DvhBsIdrvOqAS"), 2);
             
             if(loginError == null)
             {

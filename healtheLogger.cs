@@ -73,7 +73,7 @@ namespace Cerner_Healthe_Steps_Logger
             //checkUserCreds();
             driver = new ChromeDriver(chDrService, options);
             
-            hideChromeWindow();
+            //hideChromeWindow();
 
         }
 
@@ -110,10 +110,30 @@ namespace Cerner_Healthe_Steps_Logger
         }
         private void navigateToPedoEntryPage()
         {
-            driver.Navigate().GoToUrl("https://healtheatcernerportal.cerner.com/dt/nutr/PedometerEntry.asp");
-            ReadOnlyCollection<IWebElement> tdElements = driver.FindElement(By.TagName("table"), 3).FindElements(By.TagName("td"));
+            //driver.Navigate().GoToUrl("https://healtheatcernerportal.cerner.com/dt/nutr/PedometerEntry.asp");
+            //ReadOnlyCollection<IWebElement> tdElements = driver.FindElement(By.TagName("table"), 3).FindElements(By.TagName("td"));
 
-            tdElements[1].FindElement(By.TagName("a")).Click();
+            //tdElements[1].FindElement(By.TagName("a")).Click();
+            /*
+             * Cerner Health now has a new website.
+             */
+            driver.Navigate().GoToUrl("https://healtheatcerner.hac.wellness.us-1.healtheintent.com/pages/health/trackers/steps");
+            Thread.Sleep(5000);
+            ReadOnlyCollection<IWebElement> anchorElements = driver.FindElements(By.ClassName("_1XVZglHOxZMKNHi0Vyvrxm"));
+
+            foreach(IWebElement anchor in anchorElements)
+            {
+                try
+                {
+                    if (anchor.FindElement(By.TagName("span")).Text.Equals("View All Entries"))
+                    {
+                        anchor.Click();
+                        break;
+                    }
+                }
+                catch(Exception ex)
+                { }
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -457,7 +477,7 @@ namespace Cerner_Healthe_Steps_Logger
             }
             worker.ReportProgress(Convert.ToInt32(100), "Finished Comparing");
         }
-        private void processCernerHLWRData(BackgroundWorker worker)
+        private void processCernerHLWRData_Old(BackgroundWorker worker)
         {
             driver.Navigate().GoToUrl("https://healtheatcernerportal.cerner.com/dt/nutr/pedometerentry.asp");
             
@@ -534,6 +554,169 @@ namespace Cerner_Healthe_Steps_Logger
 
         }
 
+        private void processCernerHLWRData(BackgroundWorker worker)
+        {
+            //driver.Navigate().GoToUrl("https://healtheatcernerportal.cerner.com/dt/nutr/pedometerentry.asp");
+
+            /*
+             * With the new CernerHealth website, the page which displays all steps has changed.
+             * By default the list loads 20 entries.
+             * To get the next set of 20 entries, you need to click the load more button.
+             * 
+             * Depending on the current date, you can calculate how many clicks of the load more button are required to get entries until the start of the year.
+             */
+
+            clickLoadMoreButton();
+
+            IWebElement listContentEle = driver.FindElement(By.ClassName("list-content"));
+
+            ReadOnlyCollection<IWebElement> liElements = listContentEle.FindElements(By.TagName("li"));
+            int currentCount = 0;
+            int totalCount = liElements.Count();
+            foreach (IWebElement liEle in liElements)
+            {
+                currentCount++;
+                Double reportProg = ((double)currentCount / (double)totalCount) * 100;
+                worker.ReportProgress(Convert.ToInt32(reportProg), "Processing HLWR data, please wait !!");
+                try
+                {
+                    string stepsCount = "";
+                    DateTime dateOfrecord = DateTime.Now;
+                    ReadOnlyCollection<IWebElement> spanElements = liEle.FindElements(By.TagName("span"));
+                    foreach(IWebElement spanEle in spanElements)
+                    {
+                        
+                        try
+                        {
+                            stepsCount = spanEle.FindElement(By.TagName("Div")).Text.Split(' ')[0];
+                        }
+                        catch(Exception e)
+                        {
+                            dateOfrecord = convertHLWRDatetoDateVar(spanEle.Text);
+                        }
+
+                    }
+
+                    if (dateOfrecord < startOfYear)
+                    {
+                        worker.ReportProgress(Convert.ToInt32(100), "Finished processing data");
+                        break;
+                    }
+                    else if(!stepsCount.Equals(""))
+                    {
+                        Cerner_Healthe_Steps_Logger.Classes.steps stepsObj = new Classes.steps();
+
+                        stepsObj.StepsDate = dateOfrecord;
+                        stepsObj.StepsCount = stepsCount.Replace(",", "");
+                        stepsObj.Pointer = -1;
+
+                        hlwrSteps.Add(stepsObj);
+                    }
+                }
+                catch(Exception e)
+                {
+
+                }
+            }
+             
+
+
+
+        }
+
+        private DateTime convertHLWRDatetoDateVar(string hlwrDate)
+        {
+            //converting the following to a date --> Sat, May 22
+            int month = 0;
+            string monthString = hlwrDate.Split(',')[1].Trim().Split(' ')[0].Trim();
+            switch (monthString)
+            {
+                case "Jan":
+                    month = 1;
+                    break;
+                case "Feb":
+                    month = 2;
+                    break;
+                case "Mar":
+                    month = 3;
+                    break;
+                case "Apr":
+                    month = 4;
+                    break;
+                case "May":
+                    month = 5;
+                    break;
+                case "Jun":
+                    month = 6;
+                    break;
+                case "Jul":
+                    month = 7;
+                    break;
+                case "Aug":
+                    month = 8;
+                    break;
+                case "Sep":
+                    month = 9;
+                    break;
+                case "Sept":
+                    month = 9;
+                    break;
+                case "Oct":
+                    month = 10;
+                    break;
+                case "Nov":
+                    month = 11;
+                    break;
+                case "Dec":
+                    month = 12;
+                    break;
+                default:
+                    break;
+            }
+            if (month <= System.DateTime.Now.Month)
+            {
+                return DateTime.Parse((hlwrDate.Split(',')[1]) + ", " + System.DateTime.Now.Year.ToString());
+            }
+            else
+            {
+                return DateTime.Parse((hlwrDate.Split(',')[1]) + ", " + (System.DateTime.Now.Year - 1).ToString());
+            }
+            
+            
+
+        }
+
+        private void clickLoadMoreButton()
+        {
+            System.TimeSpan span = DateTime.Now.Subtract(startOfYear);
+
+            int timesToClick = (int)span.TotalDays / 20;
+
+            for (int i = 0; i < timesToClick; i++)
+            {
+
+                ReadOnlyCollection<IWebElement> buttonElements = driver.FindElements(By.ClassName("_2p281HWT3hU48MTSHSRdFH"));
+
+                foreach (IWebElement button in buttonElements)
+                {
+                    try
+                    {
+                        if (button.Text.ToUpper().Equals("LOAD MORE"))
+                        {
+                            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                            js.ExecuteScript("window.scrollTo(0," + (button.Location.Y - 200) + ")");
+                            button.Click();
+                            break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                }
+            }
+        }
+
 
         private void processGoogleData(BackgroundWorker worker)
         {
@@ -560,9 +743,9 @@ namespace Cerner_Healthe_Steps_Logger
                         {
                             Cerner_Healthe_Steps_Logger.Classes.steps stepsObj = new Classes.steps();
                             stepsObj.StepsDate = datefield;
-                            if (!fields[13].Equals(""))
+                            if (!fields[14].Equals(""))
                             {
-                                stepsObj.StepsCount = (Convert.ToInt32(fields[13]) + STEPS_BUFFER).ToString();
+                                stepsObj.StepsCount = (Convert.ToInt32(fields[14]) + STEPS_BUFFER).ToString();
                             }
                             else
                             {
@@ -703,34 +886,84 @@ namespace Cerner_Healthe_Steps_Logger
 
                 if (apiSteps[i].Pointer == -1 && stepsCount > 0)
                 {
+                    //OLD API
+                    //try
+                    //{
+                    //    //Thread.Sleep(5000);
+                    //    driver.Navigate().GoToUrl("https://healtheatcernerportal.cerner.com/dt/nutr/PedometerEntry.asp");
+                    //    IWebElement datePicker = driver.FindElement(By.Id("DatePickerText"), 2);
+                    //    IWebElement steps = driver.FindElement(By.Id("steps"), 2);
+                    //    IWebElement stride = driver.FindElement(By.Id("Stride"));
+
+                    //    datePicker.Clear();
+                    //    datePicker.SendKeys(apiSteps[i].StepsDate.Date.ToShortDateString());
+
+
+                    //    steps.SendKeys(stepsCount.ToString());
+                    //    stride.Clear();
+                    //    stride.SendKeys("2.5");
+
+                    //    driver.FindElement(By.Name("btnSaveExercise")).Submit();
+                    //    flag++;
+                    //    Double reportProg = ((double)flag / (double)newDataCount) * 100;
+                    //    worker.ReportProgress(Convert.ToInt32(reportProg), "Logging your steps...");
+                    //}
+                    //catch
+                    //{
+                    //    //Something went wrong.
+
+                    //}
+
+                    //NEW CERNER HEALTH API
+
                     try
                     {
-                        //Thread.Sleep(5000);
-                        driver.Navigate().GoToUrl("https://healtheatcernerportal.cerner.com/dt/nutr/PedometerEntry.asp");
-                        IWebElement datePicker = driver.FindElement(By.Id("DatePickerText"), 2);
-                        IWebElement steps = driver.FindElement(By.Id("steps"), 2);
-                        IWebElement stride = driver.FindElement(By.Id("Stride"));
+                        /*
+                         * _1RRZGDbmwb4EYxy435uPuz  --> class name of the modal that shows up to add step entries
+                         */
 
-                        datePicker.Clear();
-                        datePicker.SendKeys(apiSteps[i].StepsDate.Date.ToShortDateString());
+                        findButtonandClick(driver.FindElements(By.ClassName("_3afIE84GrBVHAdO-mktzbJ")), "ADD ENTRY");
+                        driver.FindElement(By.Name("terra-date-dateInput")).Clear();
+                        driver.FindElement(By.Name("terra-date-dateInput")).SendKeys(apiSteps[i].StepsDate.Date.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
+                        driver.FindElement(By.ClassName("_2z_wqDgbAeJ6VaX8gRarkj")).SendKeys(stepsCount.ToString());
 
-                        
-                        steps.SendKeys(stepsCount.ToString());
-                        stride.Clear();
-                        stride.SendKeys("2.5");
+                        findButtonandClick(driver.FindElements(By.ClassName("_3afIE84GrBVHAdO-mktzbJ")), "SAVE");
 
-                        driver.FindElement(By.Name("btnSaveExercise")).Submit();
+
                         flag++;
                         Double reportProg = ((double)flag / (double)newDataCount) * 100;
                         worker.ReportProgress(Convert.ToInt32(reportProg), "Logging your steps...");
+
+                        while (driver.FindElement(By.ClassName("_1RRZGDbmwb4EYxy435uPuz"), 2) != null)
+                        {
+                            // wait in this while loop for the modal to close.
+                        }
                     }
                     catch
                     {
-                        //Something went wrong.
 
                     }
-                    
-                    
+                }
+            }
+        }
+
+        private void findButtonandClick(ReadOnlyCollection<IWebElement> buttonElements, string findText)
+        {
+            foreach (IWebElement button in buttonElements)
+            {
+                try
+                {
+                    if (button.Text.ToUpper().Equals(findText))
+                    {
+                        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                        js.ExecuteScript("window.scrollTo(0," + (button.Location.Y - 200) + ")");
+                        button.Click();
+                        break;
+                    }
+                }
+                catch
+                {
+
                 }
             }
         }
